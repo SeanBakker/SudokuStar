@@ -4,9 +4,11 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import com.example.sudokustar.game.Cell
 
 class SudokuStarBoardView(context: Context, attributeSet: AttributeSet) : View(context, attributeSet) {
 
@@ -16,6 +18,7 @@ class SudokuStarBoardView(context: Context, attributeSet: AttributeSet) : View(c
     private var selectedRow = -1
     private var selectedCol = -1
     private var listener: SudokuStarBoardView.OnTouchListener? = null
+    private var cells: List<Cell>? = null
 
     private val thickLinePaint = Paint().apply {
         style = Paint.Style.STROKE
@@ -39,6 +42,12 @@ class SudokuStarBoardView(context: Context, attributeSet: AttributeSet) : View(c
         color = Color.parseColor("#efedef")
     }
 
+    private val textPaint = Paint().apply {
+        style = Paint.Style.FILL_AND_STROKE
+        color = Color.BLACK
+        textSize = 24F
+    }
+
     //Set display of screen to be bounded by the minimum value of the width/height
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
@@ -50,24 +59,25 @@ class SudokuStarBoardView(context: Context, attributeSet: AttributeSet) : View(c
         cellSizePixels = (width / size).toFloat()
         fillCells(canvas)
         drawLines(canvas)
+        drawText(canvas)
     }
 
     private fun fillCells(canvas: Canvas) {
-        if (selectedRow == -1 || selectedCol == -1) return
-        for (row in 0..size) {
-            for (col in 0..size) {
-                //Cell is selected
-                if (row == selectedRow && col == selectedCol) {
-                    fillCell(canvas, row, col, selectedCellPaint)
-                }
-                //Cell is in same row or column as selected cell
-                else if (row == selectedRow || col == selectedCol) {
-                    fillCell(canvas, row, col, conflictingCellPaint)
-                }
-                //Cell is in the same cell group as the selected cell
-                else if (row / sqrtSize == selectedRow / sqrtSize && col / sqrtSize == selectedCol / sqrtSize) {
-                    fillCell(canvas, row, col, conflictingCellPaint)
-                }
+        cells?.forEach {
+            val row = it.row
+            val col = it.col
+
+            //Cell is selected
+            if (row == selectedRow && col == selectedCol) {
+                fillCell(canvas, row, col, selectedCellPaint)
+            }
+            //Cell is in same row or column as selected cell
+            else if (row == selectedRow || col == selectedCol) {
+                fillCell(canvas, row, col, conflictingCellPaint)
+            }
+            //Cell is in the same cell group as the selected cell
+            else if (row / sqrtSize == selectedRow / sqrtSize && col / sqrtSize == selectedCol / sqrtSize) {
+                fillCell(canvas, row, col, conflictingCellPaint)
             }
         }
     }
@@ -91,6 +101,24 @@ class SudokuStarBoardView(context: Context, attributeSet: AttributeSet) : View(c
         }
     }
 
+    //Draw numbers to the screen
+    private fun drawText(canvas: Canvas) {
+        cells?.forEach {
+
+            val row = it.row
+            val col = it.col
+            val valueString = it.value.toString()
+
+            val textBounds = Rect()
+            textPaint.getTextBounds(valueString, 0, valueString.length, textBounds)
+            val textWidth = textPaint.measureText(valueString)
+            val textHeight = textBounds.height()
+
+            canvas.drawText(valueString, (col * cellSizePixels) + cellSizePixels / 2 - textWidth / 2, (row * cellSizePixels) + cellSizePixels / 2 - textHeight / 2, textPaint)
+
+        }
+    }
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
         return when (event.action) {
             MotionEvent.ACTION_DOWN -> {
@@ -110,6 +138,11 @@ class SudokuStarBoardView(context: Context, attributeSet: AttributeSet) : View(c
     fun updateSelectedCellUI(row: Int, col: Int) {
         selectedRow = row
         selectedCol = col
+        invalidate()
+    }
+
+    fun updateCells(cells: List<Cell>) {
+        this.cells = cells
         invalidate()
     }
 
