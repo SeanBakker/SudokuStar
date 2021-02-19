@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.example.sudokustar.R
+import com.example.sudokustar.game.Cell
 import com.example.sudokustar.view.custom.SudokuStarBoardView
 import com.example.sudokustar.viewmodel.SudokuStarViewModel
 import kotlinx.android.synthetic.main.activity_main.*
@@ -21,6 +22,18 @@ class MainActivity : AppCompatActivity(), SudokuStarBoardView.OnTouchListener {
 
         viewModel = ViewModelProviders.of(this).get(SudokuStarViewModel::class.java)
         viewModel.sudokuGame.selectedCellLiveData.observe(this, Observer { updateSelectedCellUI(it) })
+        viewModel.sudokuGame.cellsLiveData.observe(this, Observer { updateCells(it) })
+
+        val buttons = listOf(oneButton, twoButton, threeButton, fourButton, fiveButton, sixButton, sevenButton, eightButton, nineButton)
+
+        //Read button input
+        buttons.forEachIndexed { index, button ->
+            button.setOnClickListener { viewModel.sudokuGame.handleInput(index + 1) }
+        }
+    }
+
+    private fun updateCells(cells: List<Cell>?) = cells?.let {
+        sudokuStarBoardView.updateCells(cells)
     }
 
     private fun updateSelectedCellUI(cell: Pair<Int, Int>?) = cell?.let {
