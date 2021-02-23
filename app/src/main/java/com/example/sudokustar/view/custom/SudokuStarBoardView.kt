@@ -1,14 +1,12 @@
 package com.example.sudokustar.view.custom
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Rect
+import android.graphics.*
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import com.example.sudokustar.game.Cell
+import kotlin.math.min
 
 class SudokuStarBoardView(context: Context, attributeSet: AttributeSet) : View(context, attributeSet) {
 
@@ -48,10 +46,22 @@ class SudokuStarBoardView(context: Context, attributeSet: AttributeSet) : View(c
         textSize = 24F
     }
 
+    private val startingCellTextPaint = Paint().apply {
+        style = Paint.Style.FILL_AND_STROKE
+        color = Color.BLACK
+        textSize = 32F
+        typeface = Typeface.DEFAULT_BOLD
+    }
+
+    private val startingCellPaint = Paint().apply {
+        style = Paint.Style.FILL_AND_STROKE
+        color = Color.parseColor("#acacac")
+    }
+
     //Set display of screen to be bounded by the minimum value of the width/height
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        val sizePixels = Math.min(widthMeasureSpec, heightMeasureSpec)
+        val sizePixels = min(widthMeasureSpec, heightMeasureSpec)
         setMeasuredDimension(sizePixels, sizePixels)
     }
 
@@ -67,8 +77,12 @@ class SudokuStarBoardView(context: Context, attributeSet: AttributeSet) : View(c
             val row = it.row
             val col = it.col
 
+            //Cell has a starting value
+            if (it.isStartingCell){
+                fillCell(canvas, row, col, startingCellPaint)
+            }
             //Cell is selected
-            if (row == selectedRow && col == selectedCol) {
+            else if (row == selectedRow && col == selectedCol) {
                 fillCell(canvas, row, col, selectedCellPaint)
             }
             //Cell is in same row or column as selected cell
@@ -109,12 +123,13 @@ class SudokuStarBoardView(context: Context, attributeSet: AttributeSet) : View(c
             val col = it.col
             val valueString = it.value.toString()
 
+            val paintToUse = if (it.isStartingCell) startingCellTextPaint else textPaint
             val textBounds = Rect()
-            textPaint.getTextBounds(valueString, 0, valueString.length, textBounds)
-            val textWidth = textPaint.measureText(valueString)
+            paintToUse.getTextBounds(valueString, 0, valueString.length, textBounds)
+            val textWidth = paintToUse.measureText(valueString)
             val textHeight = textBounds.height()
 
-            canvas.drawText(valueString, (col * cellSizePixels) + cellSizePixels / 2 - textWidth / 2, (row * cellSizePixels) + cellSizePixels / 2 - textHeight / 2, textPaint)
+            canvas.drawText(valueString, (col * cellSizePixels) + cellSizePixels / 2 - textWidth / 2, (row * cellSizePixels) + cellSizePixels / 2 - textHeight / 2, paintToUse)
 
         }
     }
