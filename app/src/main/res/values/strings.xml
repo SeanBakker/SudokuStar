@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">Sudoku Star</string>
+    <string name="_1">1</string>
+    <string name="_2">2</string>
+    <string name="_3">3</string>
+    <string name="_4">4</string>
+    <string name="_5">5</string>
+    <string name="_6">6</string>
+    <string name="_7">7</string>
+    <string name="_8">8</string>
+    <string name="_9">9</string>
+    <string name="Loading_New_Board">Loading New Board</string>
+    <string name="play">Play</string>
+    <string name="playEasy">Play - Easy</string>
+    <string name="playHard">Play - Hard</string>
+    <string name="playMedium">Play - Medium</string>
+    <string name="Leave_Game">Leave</string>
+    <string name="win_result">Congratulations! The board was successfully completed!</string>
+    <string name="lose_result">Sorry! This board is incorrect. Try again!</string>
+    <string name="Submit_Game">Submit</string>
+    <string name="board_not_complete">The board is incomplete</string>
+    <string name="resumeGame">Resume Game</string>
+    <string name="restartGame">Restart Game</string>
+</resources>

@@ -1,0 +1,31 @@
+
+Notes for Game Development -------------
+
+Idea: Board Creation with removing cells
+https://www.createclassicsudoku.com/How_Do_I_Measure_Sudoku_Puzzle_Difficulty_Level.jsp
+
+After Game finished
+- give hint for error upon selecting the resume button (if board was a fail - could even have successful board hide the resume button)
+- highlight any error cells with red background - use solver to compare wrong cells
+
+BUG FIXES:
+- clear filter on note taking buttons (gray colour instead of gold)
+- App crashes in between creating boards (too much running code)
+- App crashes on clicking submit button (still runs code for solveBoard???) (sometimes just randomly)
+- Added cells (green) are still not guaranteed to be in the correct spot!!!!
+- App crashes randomly - code running in background may crash - just select "wait" option
+
+ Idea: App Design
+- App Header: Have a star logo beside the SudokuStar app name
+- Add more app themes and buttons
+- New game modes with sudoku twists (diagonal, snakes, etc)
+- Loading button for long board creations (ideally we can reduce board build time)
+
+    LINKS:
+    https://developer.android.com/studio/publish/
+    https://developer.android.com/reference/android/content/Intent#FLAG_ACTIVITY_REORDER_TO_FRONT
+    https://www.tutorialspoint.com/how-to-switch-between-different-activities-in-android
+
+    Popup windows:
+    https://www.codelocker.net/p/101/android-create-a-popup-window-with-buttons/
+
