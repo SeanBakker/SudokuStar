@@ -364,7 +364,6 @@ class SudokuGame : SudokuApplication() {
         cellsToRemove = endPos - cellsToRemove
 
         for (count in startPos until cellsToRemove) {
-
             //Randomly remove cells from the board
             do {
                 pos = (startPos until endPos).shuffled().first()
@@ -374,7 +373,7 @@ class SudokuGame : SudokuApplication() {
             cells[pos].value = empty.toString()
             cells[pos].isStartingCell = false
 
-            cellsRecover[pos].isStartingCell = false
+            //cellsRecover[pos].isStartingCell = false
 
             cellsAnswer[pos].value = DEFAULT_CELL
             cellsAnswer[pos].isStartingCell = false
@@ -391,16 +390,19 @@ class SudokuGame : SudokuApplication() {
         solveBoard()
 
         for (count in startPos until endPos) {
-/*
+
             //TESTING - FINISH BOARDS AFTER CREATING NEW BOARD
-            cells[count].value = cellsAnswer[count].value
+            //cells[count].value = cellsAnswer[count].value
             cells[count].required = cellsAnswer[count].required
             cells[count].removed = cellsAnswer[count].removed
-*/
-            if (cellsAnswer[count].isStartingCell) {
 
+            if (cellsAnswer[count].isStartingCell) {
                 cells[count].value = cellsAnswer[count].value
                 cells[count].isStartingCell = true
+            }
+            else {
+                cells[count].isStartingCell = false
+                cells[count].value = empty.toString()
             }
         }
     }
@@ -494,7 +496,6 @@ class SudokuGame : SudokuApplication() {
             cells[pos].notes.clear()
 
             if (!cells[pos].isStartingCell) {
-                cells[pos].removed = false
                 cells[pos].value = empty.toString()
             }
         }
@@ -513,7 +514,7 @@ class SudokuGame : SudokuApplication() {
         var tempNum = "0"
         var tempPos: Int
         var noMoreMoves: Boolean
-        val numList = List(group3) { Cell(startPos, startPos, empty.toString(), startPos) }
+        var numList = List(group3) { Cell(startPos, startPos, empty.toString(), startPos) }
 
         //Check for full and complete board
         full = checkFull(cellsAnswer)
@@ -527,11 +528,9 @@ class SudokuGame : SudokuApplication() {
         }
 
         while (!complete) {
-
             noMoreMoves = true
 
             for (pos in startPos until endPos) {
-
                 //Check for any cells with only one possible option and input that number
                 if (!cellsAnswer[pos].isStartingCell && checkChar(pos, cellsAnswer)) {
                     for (count in startPos until group3) {
@@ -539,7 +538,6 @@ class SudokuGame : SudokuApplication() {
                             tempNum = cellsAnswer[pos].value[count].toString()
                         }
                     }
-
                     cellsAnswer[pos].value = tempNum
                     noMoreMoves = false
 
@@ -547,20 +545,12 @@ class SudokuGame : SudokuApplication() {
                     removeOptions(pos, tempNum.toInt(), cellsAnswer)
                 }
 
-                //NEEDS REVIEW ----------------------------------------
-                //Clean up this code using another function? There is a lot of repeating...
-
                 //Check groups for 1 possible number - Loop over all groups on the board
                 for (group in startPos + 1..group3) {
                     //Loop over cells in each group
                     for (pos2 in startPos until endPos) {
-                        if (cellsAnswer[pos2].group == group && cellsAnswer[pos2].value.length > 1) {
-                            //Loop over cell value characters
-                            for (count in startPos until group3) {
-                                if (cellsAnswer[pos2].value[count] != empty) {
-                                   numList[(cellsAnswer[pos2].value[count]).toString().toInt() - 1].value = (numList[(cellsAnswer[pos2].value[count]).toString().toInt() - 1].value.toInt() + 1).toString()
-                                }
-                            }
+                        if (cellsAnswer[pos2].group == group) {
+                            numList = recordCellChars(pos2, numList)
                         }
                     }
 
@@ -568,24 +558,14 @@ class SudokuGame : SudokuApplication() {
                     for (count in startPos until group3) {
                         if (numList[count].value == "1") {
                             for (pos2 in startPos until endPos) {
-                                if (cellsAnswer[pos2].group == group && cellsAnswer[pos2].value.length > 1) {
-                                    if (cellsAnswer[pos2].value.contains((count + 1).toString())) {
-
-                                        cellsAnswer[pos2].value = (count + 1).toString()
-                                        noMoreMoves = false
-
-                                        //Remove options from other cells after inputting that value
-                                        removeOptions(pos2, cellsAnswer[pos2].value.toInt(), cellsAnswer)
-                                    }
+                                if (cellsAnswer[pos].group == group) {
+                                    noMoreMoves = checkFrequencyAndInsertNumber(pos2, count, noMoreMoves)
                                 }
                             }
                         }
                     }
-
                     //Reset numList
-                    for (count in startPos until group3) {
-                        numList[count].value = empty.toString()
-                    }
+                    numList = resetList(numList)
                 }
 
                 //Check rows for 1 possible number - Loop over all 9 rows on the board
@@ -596,15 +576,7 @@ class SudokuGame : SudokuApplication() {
                     //Loop over cells in each row
                     for (col in startPos until group3) {
                         pos2 = startRow + col
-
-                        if (cellsAnswer[pos2].value.length > 1) {
-                            //Loop over cell value characters
-                            for (count in startPos until group3) {
-                                if (cellsAnswer[pos2].value[count] != empty) {
-                                    numList[(cellsAnswer[pos2].value[count]).toString().toInt() - 1].value = (numList[(cellsAnswer[pos2].value[count]).toString().toInt() - 1].value.toInt() + 1).toString()
-                                }
-                            }
-                        }
+                        numList = recordCellChars(pos2, numList)
                     }
 
                     //If any frequencies are 1 after all cells in the row have been checked, then that number can be inputted
@@ -613,26 +585,12 @@ class SudokuGame : SudokuApplication() {
                             //Loop over cells in row
                             for (col in startPos until group3) {
                                 pos2 = startRow + col
-
-                                if (cellsAnswer[pos2].value.length > 1) {
-                                    if (cellsAnswer[pos2].value.contains((count + 1).toString())) {
-
-                                        cellsAnswer[pos2].value = (count + 1).toString()
-                                        noMoreMoves = false
-
-                                        //Remove options from other cells after inputting that value
-                                        removeOptions(pos2, cellsAnswer[pos2].value.toInt(), cellsAnswer)
-                                    }
-                                }
+                                noMoreMoves = checkFrequencyAndInsertNumber(pos2, count, noMoreMoves)
                             }
                         }
                     }
-
                     //Reset numList
-                    for (count in startPos until group3) {
-                        numList[count].value = empty.toString()
-                    }
-
+                    numList = resetList(numList)
                     startRow += group3
                 }
 
@@ -641,15 +599,7 @@ class SudokuGame : SudokuApplication() {
                     //Loop over cells in each column
                     for (row in startPos until endPos step group3) {
                         pos2 = startCol + row
-
-                        if (cellsAnswer[pos2].value.length > 1) {
-                            //Loop over cell value characters
-                            for (count in startPos until group3) {
-                                if (cellsAnswer[pos2].value[count] != empty) {
-                                    numList[(cellsAnswer[pos2].value[count]).toString().toInt() - 1].value = (numList[(cellsAnswer[pos2].value[count]).toString().toInt() - 1].value.toInt() + 1).toString()
-                                }
-                            }
-                        }
+                        numList = recordCellChars(pos2, numList)
                     }
 
                     //If any frequencies are 1 after all cells in the column have been checked, then that number can be inputted
@@ -658,25 +608,12 @@ class SudokuGame : SudokuApplication() {
                             //Loop over cells in column
                             for (row in startPos until endPos step group3) {
                                 pos2 = startCol + row
-
-                                if (cellsAnswer[pos2].value.length > 1) {
-                                    if (cellsAnswer[pos2].value.contains((count + 1).toString())) {
-
-                                        cellsAnswer[pos2].value = (count + 1).toString()
-                                        noMoreMoves = false
-
-                                        //Remove options from other cells after inputting that value
-                                        removeOptions(pos2, cellsAnswer[pos2].value.toInt(), cellsAnswer)
-                                    }
-                                }
+                                noMoreMoves = checkFrequencyAndInsertNumber(pos2, count, noMoreMoves)
                             }
                         }
                     }
-
                     //Reset numList
-                    for (count in startPos until group3) {
-                        numList[count].value = empty.toString()
-                    }
+                    numList = resetList(numList)
                 }
 
                 //Add advanced checking technique if the board is unfinished but there are no single numbers left
@@ -702,7 +639,6 @@ class SudokuGame : SudokuApplication() {
         var pos = startPos
 
         while (!win) {
-
             //Check remaining board for unsolved cells
             while (cellsAnswer[pos].value.length > 1) {
 
@@ -795,7 +731,6 @@ class SudokuGame : SudokuApplication() {
 
     //Function to check for a full game board
     fun checkFull(cells: List<Cell>): Boolean {
-
         //Loop over all board cells and check for cells that are not full (have more than one character)
         for (pos in startPos until endPos) {
             if (cells[pos].value.length > 1 || cells[pos].value.contains(empty)) {
@@ -807,7 +742,6 @@ class SudokuGame : SudokuApplication() {
 
     //Function to check for winning game board
     fun checkWin(cells: List<Cell>): Boolean {
-
         val checkCells = List(group3 * group3) { i -> Cell(i / group3, i % group3, DEFAULT_CELL, startPos) }
 
         //Loop over all board cells and assign group values
@@ -817,7 +751,6 @@ class SudokuGame : SudokuApplication() {
 
         //Loop over all board cells and check for winning board
         for (pos in startPos until endPos) {
-
             //Check for any duplicates and return false when duplicate is found
             if (checkCells[pos].value.contains(cells[pos].value)) {
                 checkCells[pos].value = cells[pos].value
@@ -832,7 +765,6 @@ class SudokuGame : SudokuApplication() {
 
     //Checks cell characters and returns true when only one possible option is available
     private fun checkChar(pos: Int, cells: List<Cell>): Boolean {
-
         var frequency = 0
 
         return if (cells[pos].value.length > 1) {
@@ -848,4 +780,42 @@ class SudokuGame : SudokuApplication() {
             false
         }
     }
+
+    //Loops over cell characters and records the frequency of each character into numList
+    private fun recordCellChars(pos: Int, numList: List<Cell> ): List<Cell> {
+        if (cellsAnswer[pos].value.length > 1) {
+            //Loop over cell value characters
+            for (count in startPos until group3) {
+                if (cellsAnswer[pos].value[count] != empty) {
+                    numList[(cellsAnswer[pos].value[count]).toString().toInt() - 1].value = (numList[(cellsAnswer[pos].value[count]).toString().toInt() - 1].value.toInt() + 1).toString()
+                }
+            }
+        }
+        return numList
+    }
+
+    //If any frequencies are 1 after all cells in the group/row/col have been checked, then that number can be inputted
+    private fun checkFrequencyAndInsertNumber(pos: Int, count: Int, noMoreMoves: Boolean): Boolean {
+        var noMoves = noMoreMoves
+
+        if (cellsAnswer[pos].value.length > 1) {
+            if (cellsAnswer[pos].value.contains((count + 1).toString())) {
+
+                cellsAnswer[pos].value = (count + 1).toString()
+                noMoves = false
+
+                //Remove options from other cells after inputting that value
+                removeOptions(pos, cellsAnswer[pos].value.toInt(), cellsAnswer)
+            }
+        }
+        return noMoves
+    }
+
+    private fun resetList(list: List<Cell>): List<Cell> {
+        for (count in startPos until group3) {
+            list[count].value = empty.toString()
+        }
+        return list
+    }
+
 }

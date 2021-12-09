@@ -71,7 +71,7 @@ class SudokuStarBoardView(context: Context, attributeSet: AttributeSet) : View(c
         style = Paint.Style.FILL_AND_STROKE
         color = Color.BLACK
     }
-
+/*
     //TESTING --------------------
     private val removedCellPaint = Paint().apply {
         style = Paint.Style.FILL_AND_STROKE
@@ -82,7 +82,7 @@ class SudokuStarBoardView(context: Context, attributeSet: AttributeSet) : View(c
         style = Paint.Style.FILL_AND_STROKE
         color = Color.parseColor("#a5fc9d")
     }
-
+*/
     //Set display of screen to be bounded by the minimum value of the width/height
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)

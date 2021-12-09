@@ -12,8 +12,9 @@ BUG FIXES:
 - clear filter on note taking buttons (gray colour instead of gold)
 - App crashes in between creating boards (too much running code)
 - App crashes on clicking submit button (still runs code for solveBoard???) (sometimes just randomly)
-- Added cells (green) are still not guaranteed to be in the correct spot!!!!
+- Added cells (green) are still not guaranteed to be in the correct spot!!!!??
 - App crashes randomly - code running in background may crash - just select "wait" option
+- App crashes on loading "hard" game boards (sometimes it is too difficult to create a board and needs someway of resetting but not crashing)
 
  Idea: App Design
 - App Header: Have a star logo beside the SudokuStar app name
