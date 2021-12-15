@@ -71,7 +71,7 @@ class SudokuStarBoardView(context: Context, attributeSet: AttributeSet) : View(c
         style = Paint.Style.FILL_AND_STROKE
         color = Color.BLACK
     }
-/*
+
     //TESTING --------------------
     private val removedCellPaint = Paint().apply {
         style = Paint.Style.FILL_AND_STROKE
@@ -82,7 +82,7 @@ class SudokuStarBoardView(context: Context, attributeSet: AttributeSet) : View(c
         style = Paint.Style.FILL_AND_STROKE
         color = Color.parseColor("#a5fc9d")
     }
-*/
+
     //Set display of screen to be bounded by the minimum value of the width/height
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
@@ -126,6 +126,11 @@ class SudokuStarBoardView(context: Context, attributeSet: AttributeSet) : View(c
             else if (row / sqrtSize == selectedRow / sqrtSize && col / sqrtSize == selectedCol / sqrtSize) {
                 fillCell(canvas, row, col, conflictingCellPaint)
             }
+
+            if (it.hint) {
+                fillCell(canvas, row, col, addedCellPaint)
+                it.hint = false
+            }
 /*
             //TESTING
             if (it.required) {
@@ -134,7 +139,7 @@ class SudokuStarBoardView(context: Context, attributeSet: AttributeSet) : View(c
             if (it.removed) {
                 fillCell(canvas, row, col, removedCellPaint)
             }
- */
+*/
         }
     }
 

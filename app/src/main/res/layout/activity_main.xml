@@ -138,27 +138,27 @@
     </GridLayout>
 
     <ImageButton
-        android:id="@+id/leaveBoardButton"
+        android:id="@+id/hintButton"
         android:layout_width="70dp"
         android:layout_height="40dp"
         android:layout_alignEnd="@id/sudokuStarBoardView"
         android:layout_alignRight="@id/sudokuStarBoardView"
-        app:srcCompat="@drawable/ic_baseline_home_24"
+        app:srcCompat="@drawable/hint_button"
         tools:ignore="ContentDescription" />
 
     <Button
-        android:id="@+id/resetText"
+        android:id="@+id/hintText"
         android:layout_width="120dp"
         android:layout_height="50dp"
-        android:layout_below="@id/leaveBoardButton"
-        android:layout_alignEnd="@id/leaveBoardButton"
-        android:layout_alignRight="@id/leaveBoardButton"
+        android:layout_below="@id/hintButton"
+        android:layout_alignEnd="@id/hintButton"
+        android:layout_alignRight="@id/hintButton"
         android:layout_marginTop="-16dp"
         android:layout_marginEnd="-25dp"
         android:layout_marginRight="-25dp"
         android:background="@android:color/transparent"
         android:button="@android:color/transparent"
-        android:text="@string/Leave_Game"
+        android:text="@string/hint"
         android:textColor="@color/white"
         android:textSize="15sp"
         tools:ignore="SmallSp" />
@@ -205,6 +205,19 @@
         android:background="@android:color/transparent"
         android:button="@android:color/transparent"
         android:text="@string/board_not_complete"
+        android:textColor="@color/transparent"
+        android:textSize="15sp"
+        android:singleLine="false"
+        tools:ignore="RelativeOverlap,SmallSp" />
+
+    <Button
+        android:id="@+id/hint"
+        android:layout_width="250dp"
+        android:layout_height="80dp"
+        android:layout_centerHorizontal="true"
+        android:background="@android:color/transparent"
+        android:button="@android:color/transparent"
+        android:text="@string/hint_1"
         android:textColor="@color/transparent"
         android:textSize="15sp"
         android:singleLine="false"

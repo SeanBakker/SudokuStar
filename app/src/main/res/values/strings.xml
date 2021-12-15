@@ -14,11 +14,15 @@
     <string name="playEasy">Play - Easy</string>
     <string name="playHard">Play - Hard</string>
     <string name="playMedium">Play - Medium</string>
-    <string name="Leave_Game">Leave</string>
+    <string name="hint">Hint</string>
     <string name="win_result">Congratulations! The board was successfully completed!</string>
     <string name="lose_result">Sorry! This board is incorrect. Try again!</string>
     <string name="Submit_Game">Submit</string>
     <string name="board_not_complete">The board is incomplete</string>
+    <string name="hint_1">Using hint 1/3</string>
+    <string name="hint_2">Using hint 2/3</string>
+    <string name="hint_3">Using hint 3/3</string>
+    <string name="no_hints">No More Hints</string>
     <string name="resumeGame">Resume Game</string>
     <string name="restartGame">Restart Game</string>
 </resources>

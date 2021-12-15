@@ -645,14 +645,12 @@ class SudokuGame : SudokuApplication() {
                 do {
                     val randomNum = (1..9).shuffled().first()
                     tempNum = randomNum.toString()
-                } while (!cellsAnswer[pos].value.contains(randomNum.toString()) || cellsAnswer[pos].removed)
+                } while (!cellsAnswer[pos].value.contains(randomNum.toString()))
 
                 cellsAnswer[pos].value = tempNum
                 cellsAnswer[pos].isStartingCell = true
                 cellsAnswer[pos].required = true
-
-                //Remove options from other cells after inputting that value
-                removeOptions(pos, cellsAnswer[pos].value.toInt(), cellsAnswer)
+                cellsAnswer[pos].removed = false
 
                 //Remove another cell on the board to accommodate for the newly added one
                 do {
@@ -661,56 +659,25 @@ class SudokuGame : SudokuApplication() {
                 } while (!cellsAnswer[randomNum].isStartingCell || cellsAnswer[randomNum].required)
 
                 //Remove cell from starting cells
-                tempNum = cellsAnswer[tempPos].value
                 cellsAnswer[tempPos].value = DEFAULT_CELL
                 cellsAnswer[tempPos].isStartingCell = false
                 cellsAnswer[tempPos].removed = true
-
-                //Add options for num on board
-                addOptions(tempPos, tempNum.toInt(), cellsAnswer)
-
-                //After adding options - loop over entire board and remove options to confirm no conflicts
-                for (pos2 in startPos until endPos) {
-                    if (cellsAnswer[pos2].value.length == 1) {
-                        removeOptions(pos2, cellsAnswer[pos2].value.toInt(), cellsAnswer)
-                    }
-                }
-
-                //Remove options from new default cell
-                var startRow = tempPos
-                var startCol = tempPos
-
-                //Find starting position in current row (first row is divisible by 9)
-                while (startRow % group3 != startPos) {
-                    startRow--
-                }
-
-                //Loop over the row and remove options
-                for (count in startPos until group3) {
-                    if (cellsAnswer[startRow + count].value.length == 1) {
-                        removeOptions(startRow + count, cellsAnswer[startRow + count].value.toInt(), cellsAnswer)
-                    }
-                }
-
-                //Find the starting position of the current column
-                while (startCol - group3 >= startPos) {
-                    startCol -= group3
-                }
-
-                //Loop over the column and remove options
-                for (count in startPos until endPos step group3) {
-                    if (cellsAnswer[startCol + count].value.length == 1) {
-                        removeOptions(startCol + count, cellsAnswer[startCol + count].value.toInt(), cellsAnswer)
-                    }
-                }
-
-                //Loop over group cells and remove options
-                for (pos2 in startPos until endPos) {
-                    if (cellsAnswer[pos2].group == cellsAnswer[tempPos].group && cellsAnswer[pos2].value.length == 1) {
-                        removeOptions(pos2, cellsAnswer[pos2].value.toInt(), cellsAnswer)
-                    }
-                }
                 changedCells = true
+
+                //Since we added a new starting cell, we need to restart the solving process
+                //First we reset the list and remove all previously solved cells that are not starting cells
+                for (pos2 in startPos until endPos) {
+                    if (!cellsAnswer[pos2].isStartingCell) {
+                        cellsAnswer[pos2].value = DEFAULT_CELL
+                    }
+                }
+
+                //Then we can start to remove options from the cells when we get a starting cell
+                for (pos2 in startPos until endPos) {
+                    if (cellsAnswer[pos2].isStartingCell) {
+                        removeOptions(pos2, cellsAnswer[pos2].value.toInt(), cellsAnswer)
+                    }
+                }
             }
 
             if (changedCells) {
@@ -811,11 +778,68 @@ class SudokuGame : SudokuApplication() {
         return noMoves
     }
 
+    //Reset list back to empty strings
     private fun resetList(list: List<Cell>): List<Cell> {
         for (count in startPos until group3) {
             list[count].value = empty.toString()
         }
         return list
+    }
+
+    //Function to provide a hint to the board
+    fun giveHint(cells: List<Cell>) {
+        val numList = List(endPos) { Cell(startPos, startPos, empty.toString(), startPos) }
+        val cellsHint = List(9 * 9) { i -> Cell(i / 9, i % 9, DEFAULT_CELL, 0) }
+        var numHints = 0
+        var frequency: Int
+        var tempNum = "0"
+
+        //First we need to solve the board given the current cell numbers
+        for (pos in startPos until endPos) {
+            if (cells[pos].value != empty.toString()) {
+                cellsHint[pos].value = cells[pos].value
+            }
+            cellsHint[pos].group = cells[pos].group
+        }
+
+        //Need group assignments in cellsHint before we can removeOptions of other cells in groups
+        for (pos in startPos until endPos) {
+            if (cellsHint[pos].value.length == 1) {
+                removeOptions(pos, cellsHint[pos].value.toInt(), cellsHint)
+            }
+        }
+
+        //Then we need to determine the possible hints to give
+        for (pos in startPos until endPos) {
+            frequency = 0
+
+            if (cellsHint[pos].value.length > 1) {
+                for (count in startPos until group3) {
+                    if (cellsHint[pos].value[count] != empty) {
+                        frequency++
+                    }
+                }
+
+                if (frequency == 1) {
+                    numList[numHints].value = pos.toString()
+                    numHints++
+                }
+            }
+        }
+
+        //Then we need to randomize the hint that is given
+        var hintPos: Int = (startPos..numHints).shuffled().first()
+        hintPos = numList[hintPos].value.toInt()
+
+        for (count in startPos until group3) {
+            if (cellsHint[hintPos].value.length > 1) {
+                if (cellsHint[hintPos].value[count] != empty) {
+                    tempNum = cellsHint[hintPos].value[count].toString()
+                }
+            }
+        }
+        cells[hintPos].value = tempNum
+        cells[hintPos].hint = true
     }
 
 }

@@ -5,7 +5,6 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -27,6 +26,7 @@ class MainActivity : AppCompatActivity(), SudokuStarBoardView.OnTouchListener {
     private lateinit var viewModel: SudokuStarViewModel
     private lateinit var numberButtons: List<Button>
     private var sudokuApplication = SudokuApplication()
+    private var hints = 0
 
     @SuppressLint("ResourceAsColor")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,17 +57,39 @@ class MainActivity : AppCompatActivity(), SudokuStarBoardView.OnTouchListener {
         //Call delete function when deleteButton is clicked
         deleteButton.setOnClickListener { viewModel.sudokuGame.delete() }
 
-        //Listener for Reset Game button
-        leaveBoardButton.setOnClickListener {
-            val intent = Intent(this@MainActivity, HomeScreenActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
-            startActivity(intent)
+        //Listener for hint button
+        hintButton.setOnClickListener {
+            var noHints = false
+            hints++
+            when (hints) {
+                1 -> {
+                    hint.setText(R.string.hint_1)
+                }
+                2 -> {
+                    hint.setText(R.string.hint_2)
+                }
+                3 -> {
+                    hint.setText(R.string.hint_3)
+                }
+                else -> {
+                    hint.setText(R.string.no_hints)
+                    noHints = true
+                }
+            }
+            boardNotComplete.setTextColor(Color.TRANSPARENT)
+            hint.setTextColor(Color.WHITE)
+
+            if (!noHints) {
+                viewModel.sudokuGame.giveHint(viewModel.sudokuGame.getCells())
+                updateCells(viewModel.sudokuGame.getCells())
+            }
         }
 
         submit_game.setOnClickListener {
 
             //Check for finished game board
             val fullBoard = viewModel.sudokuGame.checkFull(viewModel.sudokuGame.getCells())
+            hint.setTextColor(Color.TRANSPARENT)
 
             //When fullBoard is true, we check for a winning game board
             if (fullBoard) {
@@ -75,6 +97,7 @@ class MainActivity : AppCompatActivity(), SudokuStarBoardView.OnTouchListener {
 
                 //Post game result screen based on winning/losing board
                 sudokuApplication.setGameResult(result)
+                hints = 0
 
                 //Call GameResultActivity()
                 val intent = Intent(this@MainActivity, GameResultActivity::class.java)
@@ -86,7 +109,6 @@ class MainActivity : AppCompatActivity(), SudokuStarBoardView.OnTouchListener {
                 boardNotComplete.setTextColor(Color.WHITE)
             }
         }
-
 //        removeLoadingButton()
     }
 
@@ -108,6 +130,7 @@ class MainActivity : AppCompatActivity(), SudokuStarBoardView.OnTouchListener {
         for (button in numberButtons) {
             button.setBackgroundColor(ContextCompat.getColor(this, R.color.design_default_color_background))
         }
+        hints = 0
     }
 
     private fun updateCells(cells: List<Cell>?) = cells?.let {
@@ -119,6 +142,7 @@ class MainActivity : AppCompatActivity(), SudokuStarBoardView.OnTouchListener {
 
         //Reset text on screen
         boardNotComplete.setTextColor(Color.TRANSPARENT)
+        hint.setTextColor(Color.TRANSPARENT)
     }
 
     @SuppressLint("ResourceAsColor")

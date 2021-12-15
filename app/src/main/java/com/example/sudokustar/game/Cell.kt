@@ -11,5 +11,6 @@ class Cell(val row: Int,
     var isStartingCell: Boolean = false,
     var required: Boolean = false,
     var removed: Boolean = false,
+    var hint: Boolean = false,
     var notes: MutableSet<String> = mutableSetOf()
 )
